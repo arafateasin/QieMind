@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Job
+metadata:
+  name: qie-trader-bot
+  labels:
+    app: qie-mind
+    tier: backend
+spec:
+  runtime: python3.9
+
+  # Command to run
+  command: python agent.py
+
+  # Working directory
+  workdir: /app
+
+  # Resource limits
+  resources:
+    cpu: "0.5"
+    memory: "512Mi"
+
+  # Environment variables (use secrets for sensitive data)
+  env:
+    - name: RPC_URL
+      value: "https://testnetqierpc1.digital/"
+
+    - name: LOOP_INTERVAL
+      value: "15"
+
+    # These will be loaded from Camber secrets
+    - name: PRIVATE_KEY
+      valueFrom:
+        secretKeyRef:
+          name: qie-secrets
+          key: private_key
+
+    - name: CONTRACT_ADDRESS
+      valueFrom:
+        secretKeyRef:
+          name: qie-secrets
+          key: contract_address
+
+  # Restart policy for long-running job
+  restartPolicy: Always
+
+  # Health check (optional)
+  livenessProbe:
+    enabled: false
